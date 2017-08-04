@@ -1,7 +1,7 @@
 # VC-BayesianEstimation
 
-[![License](https://img.shields.io/badge/license-BSD%203--clause-green.svg)](LICENSE)
-[![GitHub release](https://img.shields.io/badge/version-v1.5.0-blue.svg)](https://github.com/vcurdia/VC-BayesianEstimation/releases/tag/v1.5.0)
+[![License](https://img.shields.io/badge/license-BSD%203--clause-green.svg)](https://github.com/vcurdia/VC-BayesianEstimation/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/badge/version-v1.6.1-blue.svg)](https://github.com/vcurdia/VC-BayesianEstimation/releases/tag/v1.6.1)
 
 Codes used to estimate a Dynamic Stochastic General Equilibrium (DSGE) model
 using Bayesian Estimation techniques.
@@ -10,7 +10,7 @@ using Bayesian Estimation techniques.
 # Requirements
 
 ## Matlab (R)
-The codes were tested using Matlab (R) R2012a with the following toolboxes
+The codes were tested using Matlab (R) R2014a with the following toolboxes
 - Symbolic Toolbox
 - Statistical Toolbox
 - Optimization Toolbox
@@ -20,18 +20,19 @@ LaTeX is used by some tools to compile certain documents.
 
 `epstopdf`, included in most LaTeX releases, is used by some tools.
 
-## Additional codes needed
-- [VC-Tools](https://github.com/vcurdia/VC-Tools)
-  by
-  [Vasco Cúrdia](http://www.frbsf.org/economic-research/economists/vasco-curdia/), 
+## Additional codes and packages
+
+Codes from 
+[Vasco Cúrdia](http://www.frbsf.org/economic-research/economists/vasco-curdia/):
+- [VC-Tools](https://github.com/vcurdia/VC-Tools), 
   version 
-  [v1.5.0](https://github.com/vcurdia/VC-Tools/releases/tag/v1.5.0)
+  [v1.8.0](https://github.com/vcurdia/VC-Tools/releases/tag/v1.8.0)
+  
+Codes from [Chris Sims](http://www.princeton.edu/~sims/):
 - [gensys](http://sims.princeton.edu/yftp/gensys/)
-  by [Chris Sims](http://www.princeton.edu/~sims/)
 - [optimize](http://dge.repec.org/codes/sims/optimize/)
-  by [Chris Sims](http://www.princeton.edu/~sims/)
 - [KF](http://sims.princeton.edu/yftp/Times09/KFmatlab/)
-  by [Chris Sims](http://www.princeton.edu/~sims/)
+
 
 
 ## Usage example
