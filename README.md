@@ -6,7 +6,7 @@
 Codes used to estimate a Dynamic Stochastic General Equilibrium (DSGE) model
 using Bayesian Estimation techniques.
 
-These codes are available online at:
+These codes are available online at:  
 https://github.com/vcurdia/VC-BayesianEstimation
 
 
