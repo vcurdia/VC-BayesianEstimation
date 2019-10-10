@@ -42,7 +42,7 @@ fprintf('Making Mats for Gensys...\n')
 FileName.Mats = sprintf('%sMats',FileName.Output);
 
 %% Set Timer
-TimeElapsed.MakeMats = toc();
+tt.start('MakeMats')
 
 %% -----------------------------------------------------------------------------
 
@@ -248,12 +248,72 @@ else
 end
 fprintf(fidMats,'end\n');
 
+%% List the data
+isData = exist('Data','var');
+if isData
+    fprintf(fidMats,'\n%% Data\n\n');
+    fprintf(fidMats,'Data.Raw = [...\n');
+    for jeq=1:T
+        fprintf(fidMats,'  ');
+        for jc=1:nObsVar
+            fprintf(fidMats,' %.16f',Data(jeq,jc));
+            if jc==nObsVar
+                fprintf(fidMats,';\n');
+            else
+                fprintf(fidMats,',');
+            end
+        end
+    end
+    fprintf(fidMats,'  ];\n\n');
+    fprintf(fidMats,'Data.IdxNaN = isnan(Data.Raw);\n');
+    fprintf(fidMats,'Data.Trend = repmat(ObsVarBar'',%.0f,1);\n',T);
+end
+
+%% SA
+if UseSA && isData
+    fprintf(fidMats,'\n%% SA\n\n');
+    fprintf(fidMats,'HSA = zeros(%.0f,3);\n',nObsVar);
+    for jV=1:SA.nVar
+        Vj = SA.Var{jV};
+        Vidx = SA.Idx(jV);
+        for jSA=1:3
+            fprintf(fidMats,'HSA(%1$.0f,%3$.0f) = SA%2$s%3$.0f;\n',Vidx,Vj,jSA);
+        end
+    end
+    fprintf(fidMats,'HSA(:,4) = -sum(HSA,2);\n');
+    SAData = eye(4);
+    qStart = eval(DateLabels.DataStart(end));
+    SAData = [SAData(qStart:end,:);SAData(1:qStart-1,:)];
+    SAData = repmat(SAData,ceil(T/4),1);
+    SAData = SAData(1:T,:);
+    fprintf(fidMats,'SAData = [...\n');
+    for jeq=1:T
+        fprintf(fidMats,'  ');
+        for jc=1:4
+            fprintf(fidMats,' %.16f',SAData(jeq,jc));
+            if jc==4
+                fprintf(fidMats,';\n');
+            else
+                fprintf(fidMats,',');
+            end
+        end
+    end
+    fprintf(fidMats,'  ];\n\n');
+    fprintf(fidMats,'Data.Trend = Data.Trend + SAData*HSA'';\n\n');
+end
+
 %% ------------------------------------------------------------------------
 
 %% Assign Output Vars
 fprintf(fidMats,'\n%%%% Assign Output\n');
+if isData
+    fprintf(fidMats,'Mats.Data = Data;\n');
+end
 fprintf(fidMats,'if isObsMats>0\n');
 fprintf(fidMats,'  Mats.ObsEq.HBar = HBar;\n');
+if UseSA
+    fprintf(fidMats,'  Mats.ObsEq.HSA = HSA;\n');
+end
 fprintf(fidMats,'  Mats.ObsEq.H = H;\n');
 fprintf(fidMats,'end\n');
 fprintf(fidMats,'if isObsMats>0 && isEvalGensys>0\n');
@@ -286,6 +346,6 @@ fclose(fidMats);
 clear MatNames nCols H0
 
 %% Elapsed time
-TimeElapsed.MakeMats = toc-TimeElapsed.MakeMats;
+tt.stop('MakeMats')
 
 %% ------------------------------------------------------------------------

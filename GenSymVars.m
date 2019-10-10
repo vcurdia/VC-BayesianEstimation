@@ -12,9 +12,6 @@
 % .........................................................................
 %
 % Created: March 17, 2008 by Vasco Curdia
-% Updated: July 26, 2011 by Vasco Curdia
-% Updated: May 23, 2012 by Vasco Curdia
-%          - Now it generates ParLists
 % 
 % Copyright 2008-2012 by Vasco Curdia
 
@@ -23,12 +20,30 @@
 %% display
 fprintf('Generating required symbolic variables and structures...\n')
 
-%% Set Timer
-TimeElapsed.GenSymVars = toc();
+%% Check for SA
+UseSA = 0;
+if exist('SA','var')
+    SA.nVar = size(SA.Var,1);
+    if SA.nVar>0
+        UseSA = 1;
+        SA.SD = [SA.Var{:,2}];
+        SA.Idx = find(ismember(ObsVar,SA.Var(:,1)))';
+        SA.Var = ObsVar(SA.Idx);
+        for jV=1:SA.nVar
+            for jSA=1:3
+                Params(end+1,:) = {...
+                    ['SA',SA.Var{jV},int2str(jSA)],'N',0,SA.SD(jV),...
+                    ['SA_{',SA.Var{jV},',',int2str(jSA),'}']};
+            end
+        end
+    end
+end
+
 
 %% Parameters
 if size(Params,2)==4, Params(:,5) = Params(:,1); end
-Params = cell2struct(Params,{'name','priordist','priormean','priorse','prettyname'},2);
+Params = cell2struct(Params,{'name','priordist','priormean','priorse',...
+                    'prettyname'},2);
 np = length(Params);
 for j=1:np, eval(['syms ',Params(j).name]), end
 ParList = {Params(:).name};
@@ -62,7 +77,4 @@ end
 
 %% constant variable
 syms one
-
-%% Time Elapsed
-TimeElapsed.GenSymVars = toc-TimeElapsed.GenSymVars;
 

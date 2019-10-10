@@ -68,8 +68,7 @@ fprintf('\n* MCMC Trace Plots *')
 fprintf('\n********************\n')
 
 %% Set Timer
-TimeStr = strrep(FileName.PlotsMCMCTrace,FileName.Output,'');
-TimeElapsed.(TimeStr) = toc;
+tt.start(strrep(FileName.PlotsMCMCTrace,FileName.Output,''))
 
 %% load the mcmc draws
 fprintf('\nLoading data...\n')
@@ -113,7 +112,7 @@ for jp=1:np
         plot(SampleID,(Mean-SD)*ones(size(SampleID)),':r',...
              SampleID,(Mean+SD)*ones(size(SampleID)),':r')
         plot(SampleID,RollingMean(:,jj),'-b','LineWidth',2)
-    title(['Parameter ',Params(jp).prettyname,' in each chain'])
+        title(['Parameter ',Params(jp).prettyname,' in each chain'])
         if jj==1, title(['Rolling mean of ',Params(jp).prettyname]), end
         ylim(MeanBounds)
         xlim(SampleID([1,end]))
@@ -127,7 +126,7 @@ for jp=1:np
         xlim(SampleID([1,end]))
         set(gca,'FontSize',8)
     end
-    vcPrintPDF(sprintf('%s%s_%s',PlotDir.MCMCTrace,FileName.PlotsMCMCTrace,Params(jp).name))
+    printpdf(sprintf('%s%s_%s',PlotDir.MCMCTrace,FileName.PlotsMCMCTrace,Params(jp).name))
 end
 clear xd Mean SD MeanBounds SDBounds Sample SampleID nSample RollingMean postd
 
@@ -135,7 +134,6 @@ clear xd Mean SD MeanBounds SDBounds Sample SampleID nSample RollingMean postd
 if ~ShowFig, close all, end
 
 %% Elapsed time
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(strrep(FileName.PlotsMCMCTrace,FileName.Output,''))
 
 %% ------------------------------------------------------------------------

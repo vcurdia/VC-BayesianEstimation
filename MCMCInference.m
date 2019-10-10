@@ -60,8 +60,7 @@ fprintf('\n* MCMC Inference *')
 fprintf('\n******************\n')
 
 %% Set Timer
-TimeStr = sprintf('MCMCInferenceUpdate%.0f',nUpdate);
-TimeElapsed.(TimeStr) = toc;
+tt.start(sprintf('MCMCInferenceUpdate%.0f',nUpdate))
 
 %% load the mcmc draws
 fprintf('\nLoading data...\n')
@@ -256,8 +255,7 @@ clear xd postd xdd postMax pw pwj
 %     nChains,nDraws,BurnIn,nThinning,nDrawsUsed)
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(sprintf('MCMCInferenceUpdate%.0f',nUpdate))
 
 %% ------------------------------------------------------------------------
 

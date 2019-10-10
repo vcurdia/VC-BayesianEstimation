@@ -35,7 +35,7 @@
 % ..............................................................................
 %
 % Created: March 18, 2008 by Vasco Curdia
-% Updated: February 3, 2015 by Vasco Curdia
+% Updated: March 6, 2015 by Vasco Curdia
 %
 % Copyright 2008-2015 by Vasco Curdia
 
@@ -45,7 +45,7 @@
 fprintf('Generating posterior function...\n')
 
 %% Set Timer
-TimeElapsed.GenPost = toc();
+tt.start('GenPost')
 
 %% specify some options, if not yet specified
 if ~isfield(FileName,'Post'),FileName.Post = [FileName.Output,'Post'];end
@@ -91,22 +91,6 @@ end
 %fprintf(fid,'post = post + %.16f;\n',Prior.LogTruncationCorrection);
 fprintf(fid,'if post==-inf, post = %s; return, end;\n\n',BigNumber);
 
-%% List the data
-fprintf(fid,'\n%% Data\n\n');
-fprintf(fid,'Data = [...\n');
-for jeq=1:T
-  fprintf(fid,'  ');
-  for jc=1:nObsVar
-    fprintf(fid,' %.16f',Data(jeq,jc));
-    if jc==nObsVar
-      fprintf(fid,';\n');
-    else
-      fprintf(fid,',');
-    end
-  end
-end
-fprintf(fid,'  ];\n\n');
-
 %% Run MakeMats
 if ~isfield(FileName,'Mats')
   MakeMats
@@ -132,27 +116,32 @@ fprintf(fid,'stt = Mats.KF.s00;\n');
 fprintf(fid,'sigtt = Mats.KF.sig00;\n');
 fprintf(fid,'StateVartt = zeros(%.0f,%.0f);\n',nStateVar,T);
 fprintf(fid,'SIGtt = zeros(%.0f,%.0f,%.0f);\n',nStateVar,nStateVar,T);
+fprintf(fid,'DataDetrended = Mats.Data.Raw-Mats.Data.Trend;\n',T);
 fprintf(fid,'for t=1:%.0f;\n',T);
-fprintf(fid,'  idxNoNaN = ~isnan(Data(t,:));\n');
-fprintf(fid,'  [stt,sigtt,lh,ObsVarhat]=kf(Data(t,idxNoNaN)''-Mats.KF.ObsVarBar(idxNoNaN),...\n');
-fprintf(fid,'    Mats.ObsEq.H(idxNoNaN,:),stt,sigtt,Mats.REE.G1,Mats.REE.G2);\n');
-fprintf(fid,'  if t>%.0f\n',nPreSample);
-fprintf(fid,'    post=post+lh*[1;1];\n');
-fprintf(fid,'  end\n');
-fprintf(fid,'  StateVartt(:,t) = stt;\n');
-fprintf(fid,'  SIGtt(:,:,t) = sigtt;\n');
+fprintf(fid,'    idxNoNaN = ~Mats.Data.IdxNaN(t,:);\n');
+fprintf(fid,'    [stt,sigtt,lh,ObsVarhat]=kf(...\n');
+fprintf(fid,'        DataDetrended(t,idxNoNaN)'',...\n');
+fprintf(fid,'        Mats.ObsEq.H(idxNoNaN,:),stt,sigtt,...\n');
+fprintf(fid,'        Mats.REE.G1,Mats.REE.G2);\n');
+fprintf(fid,'    if t>%.0f\n',nPreSample);
+fprintf(fid,'        post=post+lh*[1;1];\n');
+fprintf(fid,'    end\n');
+fprintf(fid,'    StateVartt(:,t) = stt;\n');
+fprintf(fid,'    SIGtt(:,:,t) = sigtt;\n');
 fprintf(fid,'end\n\n');
 
 %% ------------------------------------------------------------------------
 
 %% add normalization
 fprintf(fid,'%% Add normalization\n');
-if nPreSample
-  realdata=sum(~isnan(Data(:)))-sum(sum(~isnan(Data(1:nPreSample,:))));
-else
-  realdata=sum(~isnan(Data(:)));
-end
-fprintf(fid,'post = -( post - %.0f/2*log(2*pi) );\n\n',realdata);
+% if nPreSample
+%   realdata=sum(~isnan(Data(:)))-sum(sum(~isnan(Data(1:nPreSample,:))));
+% else
+%   realdata=sum(~isnan(Data(:)));
+% end
+fprintf(fid,'post = -( post ');
+fprintf(fid,'- sum(sum(~isnan(Mats.Data.Raw(%.0f:%.0f,:))))',nPreSample+1,T);
+fprintf(fid,'/2*log(2*pi) );\n\n');
 
 %% provide additional optional output
 fprintf(fid,'%%%% Provide additional optional output\n');
@@ -168,12 +157,12 @@ fclose(fid);
 %% Test Posterior
 fprintf('Testing posterior function...\n');
 post = -feval(FileName.Post,[Params(:).priormean]');
-fprintf('The log-posterior value using the prior mean is %0.4f.\n\n',post);
+fprintf('The log-posterior value using the prior mean is %0.4f.\n',post);
 
 %% Clean up
 clear H MatNames nCols post varargout realdata
 
 %% Elapsed time
-TimeElapsed.GenPost = toc-TimeElapsed.GenPost;
+tt.stop('GenPost')
 
 %% ------------------------------------------------------------------------

@@ -94,8 +94,7 @@ fprintf('\n* States Plots *')
 fprintf('\n****************\n')
 
 %% Set Timer
-TimeStr = strrep(FileName.PlotsStates,FileName.Output,'');
-TimeElapsed.(TimeStr) = toc;
+tt.start(strrep(FileName.PlotsStates,FileName.Output,''))
 
 %% load the mcmc draws
 if ~(UseMode || UseMedian)
@@ -152,7 +151,7 @@ for jF=1:nFigStates
         if UseMode || UseMedian
             plot(StateVard(jStateVar,nPreSample+1:end))
         else
-            vcPlotDistBands(squeeze(StateVard(jStateVar,nPreSample+1:end,:))','Bands2Show',Bands2Show);
+            vcplotdistbands(squeeze(StateVard(jStateVar,nPreSample+1:end,:))','Bands2Show',Bands2Show);
         end
         title(StateVar{jStateVar})
         if useDateLabels
@@ -166,7 +165,7 @@ for jF=1:nFigStates
     else
         FigTxt = sprintf('%.0f',jF);
     end
-    vcPrintPDF(sprintf('%s%sFig%s',PlotDir.States,FileName.PlotsStates,FigTxt))
+    printpdf(sprintf('%s%sFig%s',PlotDir.States,FileName.PlotsStates,FigTxt))
     clear FigTxt
 end
 
@@ -177,7 +176,6 @@ clear xd StateVard nBands Bands2Show nStatesShow nPlotsStates Band BandPath Band
 if ~ShowFig, close all, end
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(strrep(FileName.PlotsStates,FileName.Output,''))
 
 %% ------------------------------------------------------------------------

@@ -33,7 +33,7 @@ for jd=1:nDraws
     end
     Vs = Vs(:,:,VDHorizons(1:end-isInfHorizon));
     if isInfHorizon
-      Vs(:,:,nHorizons) = real(lyapcsdSilent(Mats.REE.G1,Vs(:,:,1),isSilent));
+      Vs(:,:,nHorizons) = real(lyapcsdsilent(Mats.REE.G1,Vs(:,:,1),isSilent));
     end
     if isObsMats>0
       for jh=1:nHorizons

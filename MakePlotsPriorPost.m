@@ -73,8 +73,7 @@ fprintf('\n* Prior-Posterior Plots *')
 fprintf('\n*************************\n')
 
 %% Set Timer
-TimeStr = strrep(FileName.PlotsPriorPost,FileName.Output,'');
-TimeElapsed.(TimeStr) = toc;
+tt.start(strrep(FileName.PlotsPriorPost,FileName.Output,''))
 
 %% load the mcmc draws
 fprintf('\nLoading data...\n')
@@ -137,7 +136,7 @@ for jF=1:nFig
         set(gca,'YTick',[],'XTick',xTickLabels([2,5,8]),'FontSize',8)
         clear xPost xFreq xOut xStep xOutMin xOutMax xPlot nIdx xPriorPdf xBounds xTickLabels yBounds
     end
-    vcPrintPDF(sprintf('%s%sFig%.0f',PlotDir.PriorPost,FileName.PlotsPriorPost,jF))
+    printpdf(sprintf('%s%sFig%.0f',PlotDir.PriorPost,FileName.PlotsPriorPost,jF))
 end
 
 %% Clean up
@@ -147,7 +146,6 @@ clear xd nPlots nFig
 if ~ShowFig, close all, end
 
 %% Elapsed time
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(strrep(FileName.PlotsPriorPost,FileName.Output,''))
 
 %% ------------------------------------------------------------------------

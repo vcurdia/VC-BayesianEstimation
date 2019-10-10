@@ -66,8 +66,7 @@ fprintf('\n* MCMC Convergence *')
 fprintf('\n********************\n')
 
 %% Set Timer
-TimeStr = sprintf('MCMCConvUpdate%.0f',nUpdate);
-TimeElapsed.(TimeStr) = toc;
+tt.start(sprintf('MCMCConvUpdate%.0f',nUpdate))
 
 %% load the mcmc draws
 fprintf('\nLoading data...\n')
@@ -172,7 +171,6 @@ clear L xj c0 S0
 clear xd
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(sprintf('MCMCConvUpdate%.0f',nUpdate))
 
 %% ------------------------------------------------------------------------

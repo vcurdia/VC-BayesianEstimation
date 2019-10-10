@@ -62,7 +62,7 @@ if ~exist('ShockGroupsPrettyLabels','var')
   end
 end
 if ~exist('ShockGroupsColors','var')
-  ShockGroupsColors = vcColorScheme('nColors',length(ShockGroupsLabels));
+  ShockGroupsColors = colorscheme('nColors',length(ShockGroupsLabels));
 end
 if ~exist('FigShapeHistDecomp','var'),FigShapeHistDecomp={1,1};end
 if ~exist('ShowFig','var'),ShowFig=0; end
@@ -110,8 +110,7 @@ fprintf('\n* Historical Decpomposition Plots *')
 fprintf('\n***********************************\n')
 
 %% Set Timer
-TimeStr = strrep(FileName.PlotsHistDecomp,FileName.Output,'');
-TimeElapsed.(TimeStr) = toc;
+tt.start(strrep(FileName.PlotsHistDecomp,FileName.Output,''))
 
 %% load draws
 if UseMode
@@ -222,7 +221,7 @@ for jF=1:nFigHistDecomp
     else
         FigTxt = sprintf('_%.0f',jF);
     end
-    vcPrintPDF(sprintf('%s%sFig%s',PlotDir.HistDecomp,FileName.PlotsHistDecomp,FigTxt))
+    printpdf(sprintf('%s%sFig%s',PlotDir.HistDecomp,FileName.PlotsHistDecomp,FigTxt))
     clear FigTxt
 end
 
@@ -236,7 +235,6 @@ clear DecompList
 if ~ShowFig, close all, end
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(strrep(FileName.PlotsHistDecomp,FileName.Output,''))
 
 %% ------------------------------------------------------------------------

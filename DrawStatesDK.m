@@ -1,5 +1,4 @@
-function varargout=DrawStatesDK(Data,s00,sig00,G1,G2,H,nShocks,nStateVar,...
-  nObsVar,T,isDrawStates)
+function varargout=DrawStatesDK(Mats,nShocks,nStateVar,nObsVar,T,isDrawStates)
 
 % DrawStatesDK
 %
@@ -32,6 +31,14 @@ function varargout=DrawStatesDK(Data,s00,sig00,G1,G2,H,nShocks,nStateVar,...
 %% Prepare
 if ~exist('isDrawStates','var'), isDrawStates=1; end
 
+DataDetrended = Mats.Data.Raw-Mats.Data.Trend;
+sig00 = Mats.KF.sig00;
+s00 = Mats.KF.s00;
+G1 = Mats.REE.G1;
+G2 = Mats.REE.G2;
+H = Mats.ObsEq.H;
+IdxNaN = Mats.Data.IdxNaN;
+
 %% Generate random states
 Er = isDrawStates*normrnd(0,1,nShocks,T);
 Sr = zeros(nStateVar,T+1);
@@ -50,30 +57,31 @@ end
 
 %% Generate difference between observables and random series
 % NOTE: assume that Data is already demeaned
-DataDiff = Data-H*Sr(:,2:T+1);
+DataDiff = DataDetrended'-H*Sr(:,2:T+1);
 
 %% Run KF on Xs
 stt = s00;
 sigtt = sig00;
 r = zeros(nStateVar,T);
-K = zeros(nStateVar,nObsVar,T);
+K = cell(T,1);
 Om = G2*G2';
 for t=1:T
-  sigtt1 = G1*sigtt*G1'+Om;
-  Ft = H*sigtt1*H';
-  vt = DataDiff(:,t)-H*G1*stt;
-  Kt = sigtt1*H'/Ft;
-  stt = G1*stt+Kt*vt;
-  sigtt = (eye(nStateVar)-Kt*H)*sigtt1;
-  r(:,t) = H'*(Ft\vt);
-  K(:,:,t) = Kt;
+    Ht = H(~IdxNaN(t,:),:);
+    sigtt1 = G1*sigtt*G1'+Om;
+    Ft = Ht*sigtt1*Ht';
+    vt = DataDiff(~IdxNaN(t,:),t)-Ht*G1*stt;
+    Kt = sigtt1*Ht'/Ft;
+    stt = G1*stt+Kt*vt;
+    sigtt = (eye(nStateVar)-Kt*Ht)*sigtt1;
+    r(:,t) = Ht'*(Ft\vt);
+    K{t} = Kt;
 end
 
 %% Run DK
 for t=T-1:-1:1
-  r(:,t) = r(:,t)+(eye(nStateVar)-H'*K(:,:,t)')*G1'*r(:,t+1);
+    r(:,t) = r(:,t)+(eye(nStateVar)-...
+                     H(~IdxNaN(t,:),:)'*K{t}')*G1'*r(:,t+1);
 end
-% r0 = (eye(nStateVar)-H'*K(:,:,1)')*G1'*r(:,1);
 r0 = G1'*r(:,1);
 
 %% Get shocks and states
