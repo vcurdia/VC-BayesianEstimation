@@ -67,10 +67,10 @@ if ~exist('VDPrctile','var'),VDPrctile = 50; end
 if ~exist('ShowFig','var'),ShowFig=0; end
 if ~exist('FigShapeVD','var'),FigShapeVD={1,1};end
 if ~exist('ShockColors','var')
-%   ShockColors = vcColorScheme('nColors',nShockVar);
-    ShockColors = vcColorScheme('nColors',nShockVar,...
+%   ShockColors = colorscheme('nColors',nShockVar);
+    ShockColors = colorscheme('nColors',nShockVar,...
                                 'UseColors','Excel2010',...
-                                'LightFactors',[0,0.4]);
+                                'LightFactors',[0,0.4,0.6]);
 end
 
 if ~exist('KeepResultMats','var'),KeepResultMats = 0; end
@@ -109,8 +109,7 @@ fprintf('\n* MCMC Variance Decomposition *')
 fprintf('\n*******************************\n')
 
 %% Set Timer
-TimeStr = 'VD';
-TimeElapsed.(TimeStr) = toc;
+tt.start('VD')
 
 %% Prepare Draws
 if strcmp(UseDist,'priordraws')
@@ -256,7 +255,7 @@ for ii=1:nPanels
         legPos(2) = 0;
         set(hleg,'Position',legPos)
     end
-    vcPrintPDF(sprintf('%s%s_%s',PlotDir.VD,FileName.PlotsVD,Panels{ii}))
+    printpdf(sprintf('%s%s_%s',PlotDir.VD,FileName.PlotsVD,Panels{ii}))
 end
 
 
@@ -268,8 +267,7 @@ end
 % for jp=1:np, eval(sprintf('syms %s',Params(jp).name)), end
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop('VD')
 
 %% ------------------------------------------------------------------------
 

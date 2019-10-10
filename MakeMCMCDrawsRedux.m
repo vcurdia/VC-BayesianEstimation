@@ -22,8 +22,7 @@ if ~exist('nDrawsRedux','var'),nDrawsRedux=1000;end
 fprintf('\nGenerating MCMC Draws Redux...\n')
 
 %% Set Timer
-TimeStr = sprintf('MCMCMakeDrawsReduxUpdate%.0f',nUpdate);
-TimeElapsed.(TimeStr) = toc;
+tt.start(sprintf('MCMCMakeDrawsReduxUpdate%.0f',nUpdate))
 
 %% load the mcmc draws
 nThinningRedux = max(floor(nDraws*nChains*(1-BurnIn)/nDrawsRedux),1);
@@ -37,7 +36,7 @@ nDrawsUsed = size(xd,2)*nChains;
 xd = reshape(xd,np,nDrawsUsed);
 postd = reshape(postd,nDrawsUsed,1);
 fprintf('Total number of draws per chain: %.0f\n', nDraws)
-fprintf('Thinning interval: %.0f\n', nThinning)
+fprintf('Thinning interval: %.0f\n', nThinningRedux)
 fprintf('Burn in: %.0f%%\n', 100*BurnIn)
 fprintf('Total number of draws used: %.0f\n', nDrawsUsed)
 
@@ -50,8 +49,7 @@ fprintf('Saved MCMC draws redux to: %s.mat\n',FileName.MCMCDrawsRedux)
 clear xd postd
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(sprintf('MCMCMakeDrawsReduxUpdate%.0f',nUpdate))
 
 %% -----------------------------------------------------------------------------
 

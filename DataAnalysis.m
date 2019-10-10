@@ -12,9 +12,9 @@
 % ..............................................................................
 %
 % Created: March 18, 2008 by Vasco Curdia
-% Updated: August 31, 2009 by Vasco Curdia
+% Updated: August 6, 2015 by Vasco Curdia
 %
-% Copyright 2008-2011 by Vasco Curdia
+% Copyright 2008-2015 by Vasco Curdia
 
 %% -----------------------------------------------------------------------------
 
@@ -22,19 +22,43 @@
 fprintf('Loading and analyzing data...\n')
 
 %% Set Timer
-TimeElapsed.DataAnalysis = toc();
+tt.start('DataAnalysis')
 
-%% load the data
-Data = load(FileName.Data);
-if ~exist('DataVarName','var')
-    Data.VarNames = fieldnames(Data);
-    if length(Data.VarNames)==1
-        DataVarName = Data.VarNames{1};
-    else
-        error('Too many variables in mat file. Need to specify which one to use.')
+%% Detect file type
+isCSV = strcmp(FileName.Data(end-3:end),'.csv');
+
+%% Load data
+if isCSV
+    Data = importdata(FileName.Data);
+    Data.Var = Data.textdata(1,2:end);
+    Data.TimeIdx = Data.textdata(2:end,1)';
+    Data.TimeStart = Data.TimeIdx{1};
+    Data.TimeEnd = Data.TimeIdx{end};
+    Data.nVar = length(Data.Var);
+    Data.T = length(Data.TimeIdx);
+    Data = rmfield(Data,'textdata');
+    [tfDates,idxDates] = ismember(TimeIdx,Data.TimeIdx);
+    if ~all(tfDates)
+        error('DateLabels require time periods outside data file!')
     end
+    [tfVar,idxVar] = ismember(ObsVar,Data.Var);
+    if ~all(tfVar)
+        error('Observable names do not match csv headers!')
+    end
+    Data = Data.data(idxDates,idxVar);
+else
+    % if CSV not specified in file name, assume that it is mat file
+    Data = load(FileName.Data);
+    if ~exist('DataVarName','var')
+        Data.VarNames = fieldnames(Data);
+        if length(Data.VarNames)==1
+            DataVarName = Data.VarNames{1};
+        else
+            error('Too many variables in mat file. Need to specify which one to use.')
+        end
+    end
+    Data = Data.(DataVarName);
 end
-Data = Data.(DataVarName);
 
 %% analyze data
 [nRow,nCol] = size(Data);
@@ -50,6 +74,6 @@ end
 clear nRow nCol
 
 %% Elapsed time
-TimeElapsed.DataAnalysis = toc-TimeElapsed.DataAnalysis;
+tt.stop('DataAnalysis')
 
 %% -----------------------------------------------------------------------------

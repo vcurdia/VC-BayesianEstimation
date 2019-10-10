@@ -23,7 +23,7 @@
 %% Options
 if ~exist('isMakePlotsStates','var'),isMakePlotsStates=1;end
 if ~exist('isMakeIRF','var'),isMakeIRF=1;end
-if ~exist('isMakeVD','var'),isMakeVD=1;end
+if ~exist('isMakeVD','var'),isMakeVD=0;end
   
 %% Run tests
 Tests2Run = {...

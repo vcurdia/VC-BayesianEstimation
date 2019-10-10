@@ -25,11 +25,9 @@
 % .........................................................................
 %
 % Created: March 27, 2008 by Vasco Curdia
-% Updated: July 26, 2011 by Vasco Curdia
-% Updated: July 29, 2011 by Vasco Curdia
-%          Allow for verbose options
+% Updated: March 6, 2015 by Vasco Curdia
 % 
-% Copyright 2008-2011 by Vasco Curdia
+% Copyright 2008-2015 by Vasco Curdia
 
 %% ------------------------------------------------------------------------
 
@@ -53,30 +51,31 @@ fprintf('\n* Generating MCMC sample(s) *')
 fprintf('\n*****************************\n\n')
 
 %% Set Timer
-TimeStr = sprintf('MCMCUpdate%.0f',nUpdate);
-TimeElapsed.(TimeStr) = toc;
+tt.start(sprintf('MCMCUpdate%.0f',nUpdate))
 
 %% Prepare options
 JobOptions = cell(nChains,1);
 for jChain=1:nChains
-  MCMCOptionsj = MCMCOptions;
-  MCMCOptionsj.fn = sprintf('%s%.0f.log',MCMCLogFileName,jChain);
-  if UseOneInitDrawAtMode && jChain==1
-    MCMCOptionsj.x0 = [Params(:).postmode]';
-  end
-  JobOptions{jChain} = {FileName.Post,sprintf('%s%.0f',FileName.MCMCDraws,jChain),...
-    Post,nDraws,jChain,MCMCOptionsj};
+    MCMCOptionsj = MCMCOptions;
+    MCMCOptionsj.fn = sprintf('%s%.0f.log',MCMCLogFileName,jChain);
+    if UseOneInitDrawAtMode && jChain==1
+        MCMCOptionsj.x0 = [Params(:).postmode]';
+    end
+    JobOptions{jChain} = {FileName.Post,...
+                        sprintf('%s%.0f',FileName.MCMCDraws,jChain),...
+                        Post,nDraws,jChain,MCMCOptionsj};
 end
 clear MCMCOptionsj
 
 %% Run MCMCFcn
 parfor jChain=1:nChains
-  MCMCFcn(JobOptions{jChain}{:});
+    MCMCFcn(JobOptions{jChain}{:});
 end
     
 %% show rejection rates
 for jChain=1:nChains
-    eval(sprintf('load %s%.0f nDraws nRejections ScaleJumpFactor',FileName.MCMCDraws,jChain))
+    eval(sprintf('load %s%.0f nDraws nRejections ScaleJumpFactor',...
+                 FileName.MCMCDraws,jChain))
     fprintf('\nChain %02.0f: ScaleJumpFactor = %4.2f, rejection rate = %5.1f%%',...
         jChain,ScaleJumpFactor,nRejections/nDraws*100)
 end
@@ -93,7 +92,6 @@ end
 clear options
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(sprintf('MCMCUpdate%.0f',nUpdate))
 
 %% ------------------------------------------------------------------------

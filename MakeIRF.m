@@ -133,8 +133,7 @@ fprintf('\n* IRF *')
 fprintf('\n*******\n')
 
 %% Set Timer
-TimeStr = 'MakeIRF';
-TimeElapsed.(TimeStr) = toc;
+tt.start('MakeIRF')
 
 %% Prepare Draws
 if strcmp(UseDist,'priordraws')
@@ -220,9 +219,9 @@ for js=1:length(Shocks2Show)
         for jj=1:length(Vars2Show{ii})
             subplot(Shape2Plot{ii}(1),Shape2Plot{ii}(2),jj);
             if nDrawsUsed==1
-                vcPlot(tid,Vars2ShowScale{ii}(jj)*PlotIRF{ii}(jj,:,js))
+                vcplot(tid,Vars2ShowScale{ii}(jj)*PlotIRF{ii}(jj,:,js))
             else
-                vcPlotDistBands(tid,squeeze(...
+                vcplotdistbands(tid,squeeze(...
                     Vars2ShowScale{ii}(jj)*PlotIRF{ii}(jj,:,js,:))',...
                                 'Bands2Show',Bands2Show);
             end
@@ -237,7 +236,7 @@ for js=1:length(Shocks2Show)
             set(gca,'YLim',[min(yl(1)-ySlack,-yMinScale),...
                             max(yMinScale,yl(2)+ySlack)])
         end
-        vcPrintPDF(sprintf('%s%s_%s_%s',...
+        printpdf(sprintf('%s%s_%s_%s',...
                            PlotDir.IRF,FileName.PlotsIRF,...
                            Panels{ii},Shocks2Show{js}))
     end
@@ -253,7 +252,6 @@ end
 if ~ShowFig, close all, end
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop('MakeIRF')
 
 %% ------------------------------------------------------------------------

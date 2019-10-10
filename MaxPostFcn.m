@@ -42,6 +42,7 @@ if ~exist('fn','var') || isempty(fn) || ~ischar(fn)
 else
   fid=fopen(fn,'wt');
 end
+MinParams.LogFn = fid;
 if ~exist('PostArgIn','var') || isempty(PostArgIn)
   PostArgIn={};
 end
@@ -119,7 +120,7 @@ if ~isfield(MinParams,'H0')
 end
 
 %% maximize the posterior
-Out = vcRobustMin(PostFileName,x0,MinParams,fid);
+Out = robustmin(PostFileName,x0,MinParams);
 
 %% close output file
 if fid~=1,fclose(fid);end

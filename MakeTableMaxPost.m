@@ -47,7 +47,7 @@ fprintf(fid,'\\usepackage{fancyhdr}\n');
 fprintf(fid,'\\renewcommand{\\headrulewidth}{0pt}\n');
 fprintf(fid,'\\pagestyle{fancy}\n');
 fprintf(fid,'\\fancyhf{}\n');
-fprintf(fid,'\\fancyhead[C]{\\textsc{%s}}\n',FileName.TableMaxPost);
+fprintf(fid,'\\fancyhead[C]{\\textsc{%s}}\n',strrep(FileName.TableMaxPost,'_','\_'));
 fprintf(fid,'\\begin{document}\n');
 
 %% value of the posterior density
@@ -101,6 +101,7 @@ fprintf(fid,'\\end{document}\n');
 fclose(fid);
 
 %% Compile and Cleanup
+
 pdflatex(FileName.TableMaxPost)
 
 %% ------------------------------------------------------------------------

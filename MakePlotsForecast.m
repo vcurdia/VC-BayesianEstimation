@@ -92,8 +92,7 @@ fprintf('\n* Forecast Plots *')
 fprintf('\n******************\n')
 
 %% Set Timer
-TimeStr = strrep(FileName.PlotsForecast,FileName.Output,'');
-TimeElapsed.(TimeStr) = toc;
+tt.start(strrep(FileName.PlotsForecast,FileName.Output,''))
 
 %% load the mcmc draws
 fprintf('\nLoading data...\n')
@@ -130,10 +129,10 @@ for j=1:2
         end
         if j==1
             var2show = ObsVar{jF};
-            vcPlotDistBands(squeeze(ObsVard(jF,nPreSample+tStart:end,:))','Bands2Show',Bands2Show);
+            vcplotdistbands(squeeze(ObsVard(jF,nPreSample+tStart:end,:))','Bands2Show',Bands2Show);
         else
             var2show = StateVar{jF};
-            vcPlotDistBands(squeeze(StateVard(jF,nPreSample+tStart:end,:))','Bands2Show',Bands2Show);
+            vcplotdistbands(squeeze(StateVard(jF,nPreSample+tStart:end,:))','Bands2Show',Bands2Show);
         end
         if j==1 && isNewData
             hold on
@@ -145,7 +144,7 @@ for j=1:2
             set(gca,...
                 'XTick',ForecastLabels.XTick,'XTickLabel',ForecastLabels.XTickLabels,'FontSize',8)
         end
-        vcPrintPDF(sprintf('%s%sFig_%s',PlotDir.Forecast,FileName.PlotsForecast,var2show))
+        printpdf(sprintf('%s%sFig_%s',PlotDir.Forecast,FileName.PlotsForecast,var2show))
     end
 end
 
@@ -156,7 +155,6 @@ clear xd StateVard ObsVard nBands Bands2Show nPlotsStates Band BandPath BandColo
 if ~ShowFig, close all, end
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(strrep(FileName.PlotsForecast,FileName.Output,''))
 
 %% ------------------------------------------------------------------------

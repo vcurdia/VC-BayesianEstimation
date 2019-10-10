@@ -23,7 +23,7 @@ if ~isfield(FileName,'GenPriorDraw')
 end
 
 %% Set Timer
-TimeElapsed.MakeGenPriorDraw = toc();
+tt.start('MakeGenPriorDraw')
 
 %% -----------------------------------------------------------------------------
 
@@ -51,6 +51,6 @@ fclose(fid);
 clear fid
 
 %% Elapsed time
-TimeElapsed.MakeGenPriorDraw = toc-TimeElapsed.MakeGenPriorDraw;
+tt.stop('MakeGenPriorDraw')
 
 %% ------------------------------------------------------------------------

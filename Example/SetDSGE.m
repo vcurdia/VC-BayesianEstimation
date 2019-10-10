@@ -95,29 +95,19 @@
 % MakePlotsMCMCConv, MCMCInference, MakeTableMCMCInference, 
 % MakePlotsMCMCTrace, MakePlotsMCMCPriorPost, MCMCConv, MakeTableMCMCConv
 %
-% .........................................................................
 %
 % Created: March 17, 2008 by Vasco Curdia
-% Updated: February 3, 2015 by Vasco Curdia
 % 
-% Copyright (C) 2008-2015 Vasco Curdia
+% Copyright (C) 2008-2017 Vasco Curdia
 
 %% ------------------------------------------------------------------------
 
 %% Preamble
 clear all
-tic
-ttic = toc();
+tt = TimeTracker;
 
 %% Settings
 FileName.Output = 'Baseline';
-
-
-%% Parallel options
-UseParallel = 0;
-nMaxWorkers = 4;
-if UseParallel,matlabpool('open',nMaxWorkers),end
-
 
 %% Allow for running only some of the blocks of actions
 % Possible Actions:
@@ -125,26 +115,36 @@ if UseParallel,matlabpool('open',nMaxWorkers),end
 %   Actions = {'Setup','MaxPost','MCMC'};
 Actions = {'All'};
 
+diary([FileName.Output,sprintf('_%s',Actions{:}),'.txt'])
+diary on
+
+%% Initiate parpool
+% parpool(2)
+
 %% ------------------------------------------------------------------------
 
 %% Load framework if already set
 if ~any(ismember({'All','Setup'},Actions))
-  save NewSettings ttic ListPathDependencies Actions UseParallel nMaxWorkers
-  load(FileName.Output)
-  load NewSettings
-  delete NewSettings.mat
+    save NewActions Actions
+    load(FileName.Output)
+    load NewActions
+    delete NewActions.mat
 else
     
 %% Setup
+tt.start('Setup')
 
 %% Data
 FileName.Data = 'data_greenspan_bernanke_20091204';
-nPreSample = 0;
+DateLabels.DataStart = '1987q3';
 DateLabels.Start = '1987q3';
 DateLabels.End = '2009q3'; 
-TimeIdx = TimeIdxCreate(DateLabels.Start,DateLabels.End);
-DateLabels.XTick = find(ismember(TimeIdx,{'1990q1','1995q1','2000q1','2005q1'}));
-DateLabels.XTickLabels = {'1990','1995','2000','2005'};
+DateLabels.XTickLabels = {'1990q1','1995q1','2000q1','2005q1'};
+TimeIdx = timeidx(DateLabels.Start,DateLabels.End);
+DateLabels.XTick = find(ismember(TimeIdx,DateLabels.XTickLabels));
+nPreSample = find(ismember(timeidx(DateLabels.DataStart,DateLabels.End), ...
+                           DateLabels.Start))-1;
+
 
 %% Estimated parameters
 Params = {...
@@ -231,7 +231,7 @@ StateEq = [...
 %% Data
 DataAnalysis
 
-%% Make REE mats
+%% Generate Matrices for spec
 MakeMats
 
 %% Priors
@@ -241,8 +241,7 @@ PriorAnalysis
 GenPost
 
 %% end Setup Action if
-TimeElapsed.Setup = toc();
-fprintf('\n%s\n\n',vctoc([],TimeElapsed.Setup))
+fprintf('\n'),tt.stop('Setup')
 save(FileName.Output)
 end
 
@@ -250,12 +249,11 @@ end
 
 %% MaxPost
 if any(ismember({'All','MaxPost'},Actions))
-    nMax = 20;
+    nMax = 20; %20
     MinParams.H0 = diag([Params(:).priorse].^2);
-    MinParams.crit = 1e-8;
-    MinParams.nit = 1000;
-    MinParams.Ritmax = 30;
-    MinParams.Ritmin = 10;
+    MinParams.nit = 1000; %1000
+    MinParams.Ritmax = 30;%30;
+    MinParams.Ritmin = 10;%10;
     MinParams.RH0 = 1;
     MinParams.Rscaledown = 0.5;
     MaxPost
@@ -265,19 +263,25 @@ end
 
 %% MCMC
 if any(ismember({'All','MCMC'},Actions))
-    nChains = 4;
-    nDrawsSearch = 1000;
-    dscale = [0.2,0.05,0.01];
-    BurnIn = 0.25;
+    nChains = 4; %4
+    nDrawsSearch = 20; %1000;
+    BurnIn = 0.25; %0.25
     nThinning = 1;
-    nDraws = 200000;
-    for nUpdate=1
+%     nDraws = 100000;
+    for nUpdate=0
         fprintf('\n*****************')
         fprintf('\n* MCMC Update %.0f *',nUpdate)
         fprintf('\n*****************')
         MCMCOptions.ScaleJumpFactor = 2.4;
         MCMCSearchScaleFactor
         save(sprintf('%sMCMCUpdate%.0f_SSF',FileName.Output,nUpdate))
+        if nUpdate==0
+            nDraws = 100000;
+        elseif nUpdate==1
+            nDraws = 200000;
+        elseif nUpdate==2
+            nDraws = 200000;
+        end
         MCMC
         save(FileName.Output)
         save(sprintf('%sMCMCUpdate%.0f',FileName.Output,nUpdate))
@@ -290,13 +294,15 @@ end
 
 %% ------------------------------------------------------------------------
 
-%% Close matlabpool
-if UseParallel,matlabpool close,end
+%% Close parpool if any
+% delete(gcp)
 
 %% elapsed time
-fprintf('\n%s\n\n',vctoc(ttic))
+fprintf('\n'),tt.show
 
 %% Save environment
 save(FileName.Output)
+
+diary off
 
 %%------------------------------------------------------------------------

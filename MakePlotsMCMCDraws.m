@@ -62,8 +62,7 @@ fprintf('\n* MCMC Draws Plots *')
 fprintf('\n********************\n')
 
 %% Set Timer
-TimeStr = strrep(FileName.PlotsMCMCDraws,FileName.Output,'');
-TimeElapsed.(TimeStr) = toc;
+tt.start(strrep(FileName.PlotsMCMCDraws,FileName.Output,''))
 
 %% load the mcmc draws
 fprintf('\nLoading data...\n')
@@ -97,7 +96,7 @@ for jChain=1:nChains
 end
 subplot(nChains,1,1)
 title('Posterior density (log) value in each chain')
-vcPrintPDF(sprintf('%s%s_post',PlotDir.MCMCDraws,FileName.PlotsMCMCDraws))
+printpdf(sprintf('%s%s_post',PlotDir.MCMCDraws,FileName.PlotsMCMCDraws))
 clear postd
 
 %% Plot scalar estimates
@@ -126,7 +125,7 @@ for jp=1:np
     title(['Parameter ',Params(jp).prettyname,' in each chain'])
     subplot(nChains,2,2)
     title(['Hist excluding initial ',int2str(100*BurnIn),'% of obs'])
-    vcPrintPDF(sprintf('%s%s_%s',PlotDir.MCMCDraws,FileName.PlotsMCMCDraws,Params(jp).name));
+    printpdf(sprintf('%s%s_%s',PlotDir.MCMCDraws,FileName.PlotsMCMCDraws,Params(jp).name));
 end
 clear p_min p_max p_spread xd nDrawsUsed
 
@@ -134,7 +133,6 @@ clear p_min p_max p_spread xd nDrawsUsed
 if ~ShowFig, close all, end
 
 %% Elapsed time
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+tt.stop(strrep(FileName.PlotsMCMCDraws,FileName.Output,''))
 
 %% ------------------------------------------------------------------------

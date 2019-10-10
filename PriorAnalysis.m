@@ -12,7 +12,7 @@
 % .........................................................................
 %
 % Created: March 18, 2008 by Vasco Curdia
-% Updated: February 9, 2015 by Vasco Curdia
+% Updated: March 6, 2015 by Vasco Curdia
 % 
 % Copyright 2008-2015 by Vasco Curdia
 
@@ -22,12 +22,12 @@
 fprintf('Analyzing priors...\n')
 
 %% Set Timer
-TimeElapsed.PriorAnalysis = toc;
+tt.start('PriorAnalysis')
 
 %% check options/defaults
 if ~exist('Prior','var'), Prior = struct; end
 if ~isfield(Prior,'ShowTable'), Prior.ShowTable = 1; end
-if ~isfield(Prior,'nDraws'),Prior.nDraws = 10000; end
+if ~isfield(Prior,'nDraws'),Prior.nDraws = 0; end
 if ~isfield(Prior,'ShowTableSample'), Prior.ShowTableSample = 1; end
 FileName.PriorDraws = [FileName.Output,'PriorDraws'];
 
@@ -186,8 +186,8 @@ end
 
 %% display results on screen
 if Prior.ShowTable
-  fprintf('\nResults from Standard-Prior analysis:')
-  fprintf('\n=====================================\n')
+  fprintf('\nPrior analysis:')
+  fprintf('\n===============\n')
   namelength = [cellfun('length',{Params(:).name})];
   namelengthmax = max(namelength);
   DispList = {'','','name';
@@ -250,8 +250,8 @@ if Prior.nDraws>0
     Prior.Sample.p500 = prctile(xd,50,2);
     Prior.Sample.p950 = prctile(xd,95,2);
     if Prior.ShowTableSample
-        fprintf('\nResults from Prior Sample analysis:')
-        fprintf('\n===================================\n')
+        fprintf('\nPrior Sample analysis:')
+        fprintf('\n======================\n')
         namelength = [cellfun('length',{Params(:).name})];
         namelengthmax = max(namelength);
         DispList = {'','','name';
@@ -293,7 +293,7 @@ end
 clear a b pmean pse jprc
 
 %% Elapsed time
-TimeElapsed.PriorAnalysis = toc-TimeElapsed.PriorAnalysis;
+tt.stop('PriorAnalysis')
 
 %% ------------------------------------------------------------------------
 
