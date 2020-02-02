@@ -164,8 +164,8 @@ if ~KeepResultMats
 end
 
 %% Show time taken
-TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
-fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
+% TimeElapsed.(TimeStr) = toc-TimeElapsed.(TimeStr);
+% fprintf('\n%s %s\n\n',TimeStr,vctoc([],TimeElapsed.(TimeStr)))
 
 %% ------------------------------------------------------------------------
 

@@ -13,17 +13,22 @@ function HistDecomp=MakePlotsHistDecompFcn(PostFileName,xd,nStateVar,...
 
 %% ------------------------------------------------------------------------
 
-RandStream.setDefaultStream(RandStream('mt19937ar','seed',sum(100*clock)*jd));
+%RandStream.setDefaultStream(RandStream('mt19937ar','seed',sum(100*clock)*jd));
 
 nDraws = size(xd,2);
 HistDecomp = zeros(nVars2Show,T,nShockVar+1,nDraws);
 isObs = any(idxHD.ObsVar(:));
 for j=1:nDraws
-    [postj,StateVarttj,Pttj,G1j,G2j]=feval(PostFileName,xd(:,j));
-    StateVarj = DrawStates(StateVarttj,Pttj,G1j,G2j,T,nStateVar,isDrawStates);
-    Shockj = [zeros(nShockVar,1),...
-      G2j(idxHD.G2,:)\(StateVarj(idxHD.G2,2:end)-G1j(idxHD.G2,:)*StateVarj(:,1:end-1))];
-    StateVarDecompj=zeros(nStateVar,nShockVar+1,T);
+    [postj,StateVarttj,Pttj,Mats]=feval(PostFileName,xd(:,j));
+    G1j = Mats.REE.G1;
+    G2j = Mats.REE.G2;
+%     StateVarj = DrawStates(StateVarttj,Pttj,G1j,G2j,T,nStateVar,isDrawStates);
+%     Shockj = [zeros(nShockVar,1),...
+%       G2j(idxHD.G2,:)\(StateVarj(idxHD.G2,2:end)-G1j(idxHD.G2,:)*StateVarj(:,1:end-1))];
+    [StateVarj,Shockj] = DrawStatesDK(Mats,nShockVar,nStateVar,nObsVar,T,isDrawStates);
+    keyboard
+    Shockj = Shockj(idxHD.G2,:);
+    StateVarDecompj = zeros(nStateVar,nShockVar+1,T);
     StateVarDecompj(:,end,1) = StateVarj(:,1);
     for t=2:T
       StateVarDecompj(:,:,t) = G1j*StateVarDecompj(:,:,t-1)+...

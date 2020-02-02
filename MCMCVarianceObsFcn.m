@@ -46,7 +46,7 @@ for jd=1:nDraws
         end
         Vo = Vo(:,:,VHorizons(1:end-isInfHorizon));
         if isInfHorizon
-            Vo(:,:,nHorizons) = Hj*real(lyapcsdSilent(G1j,Vs(:,:,1),isSilent))*Hj';
+            Vo(:,:,nHorizons) = Hj*real(lyapcsdsilent(G1j,Vs(:,:,1),isSilent))*Hj';
         end
         for jh=1:nHorizons
             V(:,jh,jd) = V(:,jh,jd)+diag(Vo(:,:,jh));

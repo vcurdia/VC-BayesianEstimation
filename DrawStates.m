@@ -39,7 +39,7 @@ if isDrawStates
   StateVard(T,:)=DrawState(StateVartTn(T,:),SIGtTn(:,:,T),nStateVar);
 end
 for t=T-1:-1:1
-    [StateVartTnt,SIGtTnt]=vcDistSmooth(StateVartTn(t,:),SIGtTn(:,:,t),StateVard(t+1,:),G1,Om);
+    [StateVartTnt,SIGtTnt]=distsmoother(StateVartTn(t,:),SIGtTn(:,:,t),StateVard(t+1,:),G1,Om);
     if isDrawStates
       StateVard(t,:) = DrawState(StateVartTnt,SIGtTnt,nStateVar);
     else

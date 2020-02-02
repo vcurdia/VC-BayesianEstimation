@@ -44,6 +44,10 @@
 
 %% ------------------------------------------------------------------------
 
+
+error('History Decomposition is not ready to run.')
+
+
 %% Settings
 if ~exist('Vars2Show','var'),Vars2Show = ObsVar;end
 if ~exist('ShockGroups','var')
@@ -175,7 +179,7 @@ end
 nPlotsHistDecomp = FigShapeHistDecomp{1}*FigShapeHistDecomp{2};
 nFigHistDecomp = ceil(nVars2Show/nPlotsHistDecomp);
 TSample = T-nPreSample;
-tid = find(ismember(TimeIdx,TimeIdxCreate(ShowDates.Start,ShowDates.End)));
+tid = find(ismember(TimeIdx,timeidx(ShowDates.Start,ShowDates.End)));
 TShow = length(tid);
 ShowDates.XTick = find(ismember(TimeIdx,ShowDates.XTickLabels));
 for jF=1:nFigHistDecomp
@@ -221,7 +225,8 @@ for jF=1:nFigHistDecomp
     else
         FigTxt = sprintf('_%.0f',jF);
     end
-    printpdf(sprintf('%s%sFig%s',PlotDir.HistDecomp,FileName.PlotsHistDecomp,FigTxt))
+%     printpdf(sprintf('%s%sFig%s',PlotDir.HistDecomp,FileName.PlotsHistDecomp,FigTxt))
+    print('-dpdf',sprintf('%s%sFig%s',PlotDir.HistDecomp,FileName.PlotsHistDecomp,FigTxt))
     clear FigTxt
 end
 
